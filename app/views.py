@@ -1,7 +1,7 @@
 from telnetlib import LOGOUT
 from app import responseBuilder
 from app import userSession
-from app.models import message
+from app.models import Message
 from django.views.decorators.csrf import csrf_protect
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -19,7 +19,7 @@ class MessageView(APIView):
          if receiver is None:
            return responseBuilder.missing_parameter("receiver")
         try:
-           message = message.objects.filter(receiver=receiver,is_read=False).latest('date')
+           message = Message.objects.filter(receiver=receiver,is_read=False).latest('date')
            message.is_read=True
            message.save()
            return responseBuilder.get_message(sender=message.sender,receiver=message.receiver,message=message.message,subject=message.subject,creation_date=message.date)
@@ -45,7 +45,7 @@ class MessageView(APIView):
           if user_name is None:
              return responseBuilder.missing_parameter("user_name")
         try:  
-          message=message.objects.get(id=id)
+          message=Message.objects.get(id=id)
           if (message.receiver != user_name)&(message.sender != user_name):
             return responseBuilder.invalid_username(user_name,id)
           message.delete()
@@ -64,9 +64,9 @@ class AllMessagesView(APIView):
     only_unread=self.request.data.get('only_unread',None)
     try:
       if only_unread == '1':
-        message = message.objects.filter(receiver=receiver,is_read=False)
+        message = Message.objects.filter(receiver=receiver,is_read=False)
       else:
-        message = message.objects.filter(receiver=receiver)     
+        message = Message.objects.filter(receiver=receiver)     
       messages_list=list(message.values('sender','receiver','subject','message','date','id'))
       message.update(is_read=True)
       return responseBuilder.get_all_messages(messages_list)

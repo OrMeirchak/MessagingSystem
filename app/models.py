@@ -4,7 +4,7 @@ from django.db import models
 from django.db import models
 
 # Create your models here.
-class message(models.Model):
+class Message(models.Model):
    sender=models.CharField(max_length=100)
    receiver=models.CharField(max_length=100)
    message=models.CharField(max_length=1000)
